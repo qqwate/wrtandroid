@@ -1,0 +1,28 @@
+﻿# Gradle
+.gradle/
+/build/
+*/build/
+
+# Local Android configuration
+local.properties
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Android build outputs
+.externalNativeBuild/
+.cxx/
+
+# Signing keys and private files
+*.jks
+*.keystore
+*.p12
+*.pem
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+*.swp

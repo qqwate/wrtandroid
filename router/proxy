@@ -1,0 +1,66 @@
+#!/bin/sh
+# CGI-обработчик переключения проксирования на OpenWrt.
+# Токен хранится отдельно в /etc/proxy_token и не зашивается в этот файл.
+
+TOKEN_FILE="/etc/proxy_token"
+ON_SCRIPT="/etc/proxy_on.sh"
+OFF_SCRIPT="/etc/proxy_off.sh"
+
+if [ ! -r "$TOKEN_FILE" ]; then
+    printf "Status: 500 Internal Server Error\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n"
+    printf "Ошибка: файл токена не найден\n"
+    exit 1
+fi
+
+# Получаем параметры из QUERY_STRING без выполнения их как shell-кода.
+mode=""
+token=""
+old_ifs="$IFS"
+IFS='&'
+for item in $QUERY_STRING; do
+    key=${item%%=*}
+    value=${item#*=}
+    case "$key" in
+        mode) mode="$value" ;;
+        token) token="$value" ;;
+    esac
+done
+IFS="$old_ifs"
+
+# Декодируем основные URL-экранирования, включая пробелы.
+token=$(printf '%b' "$(printf '%s' "$token" | sed 's/+/ /g; s/%/\\x/g')")
+expected_token=$(cat "$TOKEN_FILE")
+
+if [ -z "$token" ] || [ "$token" != "$expected_token" ]; then
+    printf "Status: 403 Forbidden\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n"
+    printf "Ошибка: неверный токен\n"
+    exit 1
+fi
+
+case "$mode" in
+    on)
+        if "$ON_SCRIPT"; then
+            printf "Status: 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n"
+            printf "ok: on\n"
+        else
+            printf "Status: 500 Internal Server Error\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n"
+            printf "Ошибка: не удалось включить проксирование\n"
+            exit 1
+        fi
+        ;;
+    off)
+        if "$OFF_SCRIPT"; then
+            printf "Status: 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n"
+            printf "ok: off\n"
+        else
+            printf "Status: 500 Internal Server Error\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n"
+            printf "Ошибка: не удалось выключить проксирование\n"
+            exit 1
+        fi
+        ;;
+    *)
+        printf "Status: 400 Bad Request\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n"
+        printf "Ошибка: параметр mode должен быть on или off\n"
+        exit 1
+        ;;
+esac

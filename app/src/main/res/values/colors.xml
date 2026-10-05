@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="screen_background">#050505</color>
+    <color name="screen_background_end">#151515</color>
+    <color name="glass_background">#241F1F1F</color>
+    <color name="glass_background_strong">#493A3A3A</color>
+    <color name="glass_stroke">#73FFFFFF</color>
+    <color name="primary_text">#F1F1F1</color>
+    <color name="secondary_text">#A6A6A6</color>
+    <color name="accent">#D7D7D7</color>
+    <color name="accent_bright">#FFFFFF</color>
+    <color name="success">#E5E5E5</color>
+    <color name="error">#FF9D9D</color>
+    <color name="button_off_start">#423F3F</color>
+    <color name="button_off_end">#111111</color>
+    <color name="button_on_start">#706D6D</color>
+    <color name="button_on_end">#171717</color>
+    <color name="field_background">#261F1F1F</color>
+    <color name="divider">#30FFFFFF</color>
+</resources>

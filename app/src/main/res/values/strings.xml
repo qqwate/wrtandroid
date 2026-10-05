@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">OpenWrt Proxy</string>
+    <string name="screen_title">OpenWrt Proxy</string>
+    <string name="screen_subtitle">Управление Podkop через роутер</string>
+    <string name="router_address_value">192.168.1.1</string>
+    <string name="proxy_on">ВКЛЮЧЕНО</string>
+    <string name="proxy_off">ВЫКЛЮЧЕНО</string>
+    <string name="timer_idle">00:00:00</string>
+    <string name="status_ready">Готово к управлению</string>
+    <string name="status_sending">Подключение к роутеру…</string>
+    <string name="status_on">Проксирование включено</string>
+    <string name="status_off">Проксирование выключено</string>
+    <string name="status_token_required">Введите токен в настройках</string>
+    <string name="status_error_prefix">Ошибка запроса</string>
+    <string name="logs">Логи</string>
+    <string name="settings">Настройки</string>
+    <string name="settings_title">Настройки подключения</string>
+    <string name="router_ip_hint">IP роутера</string>
+    <string name="token_hint">Токен доступа</string>
+    <string name="token_helper">Токен хранится только на этом устройстве</string>
+    <string name="save">Сохранить</string>
+    <string name="close">Закрыть</string>
+    <string name="clear">Очистить</string>
+    <string name="logs_empty">Логов пока нет</string>
+</resources>
