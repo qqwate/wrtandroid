@@ -4,7 +4,7 @@
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)](https://kotlinlang.org)
 [![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-UI-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
 [![OpenWrt](https://img.shields.io/badge/OpenWrt-router-00B5E2?style=for-the-badge&logo=openwrt&logoColor=white)](https://openwrt.org)
-[![License](https://img.shields.io/badge/license-MIT-brightgreen?style=for-the-badge)](LICENSE)
+[![License](https://img.shields.io/badge/license-GNU-brightgreen?style=for-the-badge)](LICENSE)
 
 <p align="center">
   <b>🇷🇺 Русский</b> · <a href="#-english">🇬🇧 English</a>
@@ -24,7 +24,8 @@
 
 ## 🔎 Ключевые слова
 
-openwrt · ndroid · kotlin · jetpack-compose · proxy · outer · home-network · pn · podkop · passwall · openclash · sing-box · xray · cgi · mneziawg
+openwrt · Android · kotlin · jetpack-compose · proxy · 
+router · home-network · vpn · podkop · passwall · openclash · sing-box · xray · cgi · amneziawg
 ## 📑 Содержание
 
 - [✨ Возможности](#-возможности)
@@ -308,7 +309,8 @@ router/
 
 ## 🔎 Keywords
 
-openwrt · ndroid · kotlin · jetpack-compose · proxy · outer · home-network · pn · podkop · passwall · openclash · sing-box · xray · cgi · mneziawg
+openwrt · ndroid · kotlin · jetpack-compose · proxy · 
+outer · home-network · pn · podkop · passwall · openclash · sing-box · xray · cgi · mneziawg
 ## 📑 Table of Contents
 
 - [✨ Features](#-features)
