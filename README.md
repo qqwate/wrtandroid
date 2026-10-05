@@ -572,3 +572,4 @@ router/
 <p align="center">
   Made with ❤️ for the OpenWrt community
 </p>
+
