@@ -22,6 +22,9 @@
 
 ---
 
+## 🔎 Ключевые слова
+
+openwrt · ndroid · kotlin · jetpack-compose · proxy · outer · home-network · pn · podkop · passwall · openclash · sing-box · xray · cgi · mneziawg
 ## 📑 Содержание
 
 - [✨ Возможности](#-возможности)
@@ -303,6 +306,9 @@ router/
 
 ---
 
+## 🔎 Keywords
+
+openwrt · ndroid · kotlin · jetpack-compose · proxy · outer · home-network · pn · podkop · passwall · openclash · sing-box · xray · cgi · mneziawg
 ## 📑 Table of Contents
 
 - [✨ Features](#-features)
@@ -572,4 +578,5 @@ router/
 <p align="center">
   Made with ❤️ for the OpenWrt community
 </p>
+
 
