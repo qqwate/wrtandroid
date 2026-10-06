@@ -26,3 +26,7 @@ local.properties
 .DS_Store
 Thumbs.db
 *.swp
+
+# Local tool downloads and emulator logs
+.tools/
+emulator*.log

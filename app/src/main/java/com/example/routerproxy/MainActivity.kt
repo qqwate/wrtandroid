@@ -131,6 +131,42 @@ private fun RouterProxyScreen(preferences: android.content.SharedPreferences) {
     var showSettings by remember { mutableStateOf(false) }
     var showLogs by remember { mutableStateOf(false) }
 
+    fun refreshRouterStatus() {
+        if (loading) return
+        if (token.isBlank()) {
+            status = "Введите токен в настройках"
+            statusIsError = true
+            showSettings = true
+            return
+        }
+        loading = true
+        status = "Проверка роутера…"
+        statusIsError = false
+        scope.launch {
+            val result = withContext(Dispatchers.IO) {
+                sendStatusRequest(routerIp, token)
+            }
+            loading = false
+            result.onSuccess { remoteEnabled ->
+                enabled = remoteEnabled
+                enabledAt = if (remoteEnabled) System.currentTimeMillis() else 0L
+                preferences.edit()
+                    .putBoolean(KEY_PROXY_ENABLED, remoteEnabled)
+                    .putLong(KEY_ENABLED_AT, enabledAt)
+                    .apply()
+                status = if (remoteEnabled) "Роутер на связи · прокси включено" else "Роутер на связи · прокси выключено"
+                statusIsError = false
+            }.onFailure { error ->
+                status = "Роутер недоступен: ${error.message ?: "ошибка запроса"}"
+                statusIsError = true
+            }
+        }
+    }
+
+    LaunchedEffect(routerIp, token) {
+        if (token.isNotBlank()) refreshRouterStatus()
+    }
+
     LaunchedEffect(enabled, enabledAt) {
         while (enabled) {
             elapsed = System.currentTimeMillis() - enabledAt
@@ -158,13 +194,14 @@ private fun RouterProxyScreen(preferences: android.content.SharedPreferences) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("OpenWrt Proxy", color = Color.White.copy(alpha = 0.95f), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                        Text("WControl", color = Color.White.copy(alpha = 0.95f), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                         Text(
-                            "Управление Podkop через роутер",
+                            "OpenWrt proxy control",
                             color = Color.White.copy(alpha = 0.52f),
                             fontSize = 7.sp
                         )
                     }
+                    GlassIconButton("↻", "Проверить роутер") { refreshRouterStatus() }
                     GlassIconButton("⚙", "Настройки") { showSettings = true }
                 }
 
@@ -590,6 +627,34 @@ private fun sendProxyRequest(routerIp: String, token: String, enabled: Boolean):
     return try {
         val responseCode = connection.responseCode
         if (responseCode in 200..299) Result.success(Unit) else Result.failure(IOException("HTTP $responseCode"))
+    } catch (error: Exception) {
+        Result.failure(error)
+    } finally {
+        connection.disconnect()
+    }
+}
+
+private fun sendStatusRequest(routerIp: String, token: String): Result<Boolean> {
+    val encodedToken = URLEncoder.encode(token, Charsets.UTF_8.name())
+    val url = URL("http://$routerIp/cgi-bin/proxy?mode=status&token=$encodedToken")
+    val connection = (url.openConnection() as HttpURLConnection).apply {
+        requestMethod = "GET"
+        connectTimeout = REQUEST_TIMEOUT_MS
+        readTimeout = REQUEST_TIMEOUT_MS
+        instanceFollowRedirects = false
+    }
+    return try {
+        val responseCode = connection.responseCode
+        if (responseCode !in 200..299) {
+            Result.failure(IOException("HTTP $responseCode"))
+        } else {
+            val body = connection.inputStream.bufferedReader().use { it.readText() }.trim()
+            when {
+                body.endsWith("ok: on") -> Result.success(true)
+                body.endsWith("ok: off") -> Result.success(false)
+                else -> Result.failure(IOException("неизвестный ответ status"))
+            }
+        }
     } catch (error: Exception) {
         Result.failure(error)
     } finally {

@@ -1,4 +1,4 @@
-﻿# OpenWrt Proxy Control
+﻿# WControl
 
 [![Platform](https://img.shields.io/badge/platform-Android%2012%2B-green?style=for-the-badge&logo=android)](https://developer.android.com)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)](https://kotlinlang.org)
@@ -22,10 +22,17 @@
 
 ---
 
+## 📸 Скриншоты
+
+<p align="center">
+  <img src="docs/screenshots/home.png" width="280" alt="Главный экран WControl">
+  <img src="docs/screenshots/settings.png" width="280" alt="Настройки WControl">
+</p>
+
 ## 🔎 Ключевые слова
 
-openwrt · Android · kotlin · jetpack-compose · proxy · 
-router · home-network · vpn · podkop · passwall · openclash · sing-box · xray · cgi · amneziawg
+`openwrt` · `android` · `kotlin` · `jetpack-compose` · `proxy` · `router` · `home-network` · `vpn` · `podkop` · `passwall` · `openclash` · `sing-box` · `xray` · `cgi` · `amneziawg`
+
 ## 📑 Содержание
 
 - [✨ Возможности](#-возможности)
@@ -60,20 +67,21 @@ router · home-network · vpn · podkop · passwall · openclash · sing-box · 
 Приложение отправляет GET-запрос:
 
 ```http
-http://<router-ip>/cgi-bin/proxy?mode=on|off&token=<token>
+http://<router-ip>/cgi-bin/proxy?mode=on|off|status&token=<token>
 ```
 
 **IP по умолчанию** — `192.168.1.1`.  
 Приложение считает операцию успешной при любом HTTP-коде `2xx`; коды `4xx` и `5xx` отображаются как ошибка и попадают в журнал.
 
-CGI-скрипт принимает только два значения `mode`:
+CGI-скрипт принимает три значения `mode`:
 
 | `mode` | Действие |
 |:------:|:---------|
 | `on`   | запускает `/etc/proxy_on.sh` |
 | `off`  | запускает `/etc/proxy_off.sh` |
+| `status` | возвращает последнее состояние (`ok: on` или `ok: off`) |
 
-Ожидаемые ответы при успешном выполнении — `ok: on` и `ok: off`.
+Ожидаемые ответы при успешном выполнении — `ok: on`, `ok: off` и `ok: on|off` для `status`.
 
 | Ошибка | HTTP-код |
 |:-------|:--------:|
@@ -81,7 +89,19 @@ CGI-скрипт принимает только два значения `mode`:
 | Неизвестный режим | `400 Bad Request` |
 | Ошибка запуска скрипта | `500 Internal Server Error` |
 
-> ℹ️ **Состояние «включено» сохраняется локально на телефоне.** Приложение не получает текущее состояние службы с роутера, поэтому после ручного изменения службы на роутере или перезапуска роутера локальный индикатор может потребовать синхронизации повторной командой.
+> ℹ️ **Кнопка «Проверить» синхронизирует индикатор с CGI.** Состояние хранится в `/tmp/wcontrol_proxy_state` и сбрасывается в `off` после перезапуска роутера; ручное изменение службы напрямую может не отражаться.
+
+---
+
+## ⚡ Запуск за 5 минут
+
+1. Скачайте APK из раздела [Releases](../../releases).
+2. На роутере скопируйте каталог `router` и запустите `sh install.sh`.
+3. Настройте одну команду включения и одну команду выключения в `/etc/proxy_on.sh` и `/etc/proxy_off.sh`.
+4. Откройте приложение **WControl**, укажите IP роутера и токен из `/etc/proxy_token`.
+5. Нажмите **Проверить**, затем центральную кнопку для переключения прокси.
+
+> Установщик сохраняет существующий токен и перезапускает `uhttpd`. По умолчанию скрипты безопасные заглушки — без настройки службы они ничего не запускают.
 
 ---
 
@@ -135,25 +155,16 @@ chmod 600 /etc/proxy_token
 
 ### 2️⃣ Установить CGI и скрипты
 
-Из корня проекта скопируйте файлы во временный каталог роутера:
+Скопируйте каталог `router` на роутер и запустите встроенный установщик:
 
 ```sh
-scp router/proxy router/proxy_on.sh router/proxy_off.sh root@192.168.1.1:/tmp/
+scp -r router root@192.168.1.1:/tmp/wcontrol
+ssh root@192.168.1.1 'sh /tmp/wcontrol/install.sh'
 ```
 
-Затем на роутере установите их:
+Установщик устанавливает `/www/cgi-bin/proxy`, `/etc/proxy_on.sh` и `/etc/proxy_off.sh`, создаёт токен только при его отсутствии, задаёт права и перезапускает `uhttpd`.
 
-```sh
-mv /tmp/proxy /www/cgi-bin/proxy
-mv /tmp/proxy_on.sh /etc/proxy_on.sh
-mv /tmp/proxy_off.sh /etc/proxy_off.sh
 
-chmod 755 /www/cgi-bin/proxy
-chmod 700 /etc/proxy_on.sh /etc/proxy_off.sh
-/etc/init.d/uhttpd restart
-```
-
-### 3️⃣ Подключить нужную службу
 
 Файлы `router/proxy_on.sh` и `router/proxy_off.sh` поставляются как **безопасные заглушки**: они ничего не включают и не выключают, пока администратор явно не добавит команду.
 
@@ -196,6 +207,7 @@ ls -l /etc/init.d | grep -Ei 'podkop|passwall|openclash|sing|xray'
 ```sh
 curl -i "http://192.168.1.1/cgi-bin/proxy?mode=on&token=ВАШ_ТОКЕН"
 curl -i "http://192.168.1.1/cgi-bin/proxy?mode=off&token=ВАШ_ТОКЕН"
+curl -i "http://192.168.1.1/cgi-bin/proxy?mode=status&token=ВАШ_ТОКЕН"
 ```
 
 Ожидаемые тела успешных ответов:
@@ -249,6 +261,8 @@ app/build/outputs/apk/debug/app-debug.apk
 ./gradlew assembleDebug
 ```
 
+> 🏷 **GitHub Releases:** workflow `.github/workflows/release.yml` автоматически собирает `WControl-vX.Y.Z.apk` и публикует его при отправке тега вида `v1.0.0`.
+
 ---
 
 ## 🚀 Установка и первый запуск
@@ -275,7 +289,11 @@ app/
 router/
 ├── proxy                            # CGI-обработчик и проверка токена
 ├── proxy_on.sh                      # команда включения службы
-└── proxy_off.sh                     # команда выключения службы
+├── proxy_off.sh                     # команда выключения службы
+└── install.sh                        # установщик CGI на OpenWrt
+
+.github/workflows/release.yml         # сборка и публикация APK по git-тегу
+docs/screenshots/                     # скриншоты для README
 ```
 
 > XML-ресурсы в `app/src/main/res` остаются в проекте для совместимости, но основной экран создаётся через **Jetpack Compose**.
@@ -287,7 +305,7 @@ router/
 - 🌐 **CGI работает по обычному HTTP**, а токен передаётся в URL. Не публикуйте `/www/cgi-bin/proxy` в интернет.
 - 🛡 Используйте эндпоинт только в **домашней сети** или через **VPN**. Для внешнего доступа применяйте HTTPS reverse proxy или VPN.
 - 🔑 Храните `/etc/proxy_token` с правами `600`; не добавляйте токен в Git, скриншоты, логи CI или исходный код приложения.
-- 🧱 Поставляемый CGI **не выполняет произвольную команду из запроса**: он выбирает только `on` или `off` и запускает фиксированные файлы.
+- 🧱 Поставляемый CGI **не выполняет произвольную команду из запроса**: он выбирает только `on`, `off` или `status` и запускает фиксированные файлы.
 - 📝 Передача токена в query string может оставлять его в журналах HTTP-клиента или прокси. Это одна из причин не использовать данный CGI за пределами доверенной сети.
 
 ---
@@ -298,7 +316,7 @@ router/
 
 # 🇬🇧 English
 
-> **OpenWrt Proxy Control** is an Android app for turning a proxy service on and off on an OpenWrt router via a local CGI endpoint. The app does not configure the proxy, Podkop, or AmneziaWG itself: it calls a script on the router, and the script manages the selected service.
+> **WControl** is an Android app for turning a proxy service on and off on an OpenWrt router via a local CGI endpoint. The app does not configure the proxy, Podkop, or AmneziaWG itself: it calls a script on the router, and the script manages the selected service.
 
 <p align="center">
   🎛 <b>One button — turn proxy on/off on OpenWrt.</b><br>
@@ -309,8 +327,8 @@ router/
 
 ## 🔎 Keywords
 
-openwrt · ndroid · kotlin · jetpack-compose · proxy · 
-outer · home-network · pn · podkop · passwall · openclash · sing-box · xray · cgi · mneziawg
+`openwrt` · `android` · `kotlin` · `jetpack-compose` · `proxy` · `router` · `home-network` · `vpn` · `podkop` · `passwall` · `openclash` · `sing-box` · `xray` · `cgi` · `amneziawg`
+
 ## 📑 Table of Contents
 
 - [✨ Features](#-features)
@@ -580,5 +598,6 @@ router/
 <p align="center">
   Made with ❤️ for the OpenWrt community
 </p>
+
 
 

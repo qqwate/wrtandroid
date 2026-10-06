@@ -5,7 +5,7 @@
     <application
         android:allowBackup="true"
         android:usesCleartextTraffic="true"
-        android:label="Управление прокси OpenWrt"
+        android:label="WControl"
         android:supportsRtl="true"
         android:theme="@style/Theme.OpenWrtProxy">
         <activity android:name=".MainActivity" android:exported="true">

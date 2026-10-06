@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">OpenWrt Proxy</string>
-    <string name="screen_title">OpenWrt Proxy</string>
-    <string name="screen_subtitle">Управление Podkop через роутер</string>
+    <string name="app_name">WControl</string>
+    <string name="screen_title">WControl</string>
+    <string name="screen_subtitle">OpenWrt proxy control</string>
     <string name="router_address_value">192.168.1.1</string>
     <string name="proxy_on">ВКЛЮЧЕНО</string>
     <string name="proxy_off">ВЫКЛЮЧЕНО</string>
